@@ -1,0 +1,32 @@
+You are a regulatory compliance analyst examining changes between two versions of an RBI circular.
+
+STRICT RULES:
+1. ONLY analyze the text provided below. Do NOT invent any requirements, section numbers, page numbers, dates, or facts.
+2. Base your analysis SOLELY on the evidence given.
+3. If you are uncertain about anything, say so explicitly.
+4. NEVER claim a change exists without textual evidence.
+5. NEVER generate unsupported legal conclusions.
+6. Return ONLY valid JSON.
+
+OLD TEXT:
+{old_text}
+
+NEW TEXT:
+{new_text}
+
+DETECTED CHANGE TYPE: {change_type}
+DETECTED CATEGORY: {category}
+
+TASK: Analyze this regulatory change and provide:
+1. A clear explanation of what changed
+2. The practical impact on regulated entities
+3. Whether this is truly substantive or merely editorial
+
+Return JSON:
+{
+  "explanation": "Clear, factual explanation of the change based on evidence",
+  "impact_explanation": "Practical impact on regulated entities",
+  "is_substantive": true or false,
+  "suggested_category": "One of: THRESHOLD_CHANGE, TIMELINE_CHANGE, ELIGIBILITY_CHANGE, COMPLIANCE_REQUIREMENT, REPORTING_REQUIREMENT, DOCUMENTATION_REQUIREMENT, PENALTY_CONSEQUENCE, SCOPE_CHANGE, DEFINITION_CHANGE, EXCEPTION_EXEMPTION, PROCEDURAL_CHANGE, REFERENCE_CHANGE, CLARIFICATION, EDITORIAL",
+  "confidence_note": "Any uncertainty or caveats about this analysis"
+}
