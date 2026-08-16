@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RegChange AI — AI-Powered Regulatory Change Intelligence Platform for RBI Circulars">
+    <title>RegChange AI — Regulatory Change Intelligence</title>
+    <link rel="stylesheet" href="/frontend/index.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="app-logo" onclick="app.showView('upload')">
+                <div class="app-logo-icon">RC</div>
+                <span class="app-logo-text">RegChange AI</span>
+                <span class="app-logo-badge">BETA</span>
+            </div>
+            <nav class="app-nav" id="mainNav">
+                <button class="nav-btn active" data-view="upload">Upload</button>
+                <button class="nav-btn" data-view="dashboard" style="display:none">Dashboard</button>
+                <button class="nav-btn" data-view="explorer" style="display:none">Changes</button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload View -->
+            <section id="view-upload" class="upload-view">
+                <div class="upload-hero">
+                    <h1>Regulatory Change Intelligence</h1>
+                    <p>Upload two versions of an RBI circular to detect, classify, and explain every meaningful regulatory change with evidence-backed traceability.</p>
+                </div>
+
+                <div class="upload-grid">
+                    <div class="upload-zone" id="oldDocZone" onclick="document.getElementById('oldDocInput').click()">
+                        <input type="file" id="oldDocInput" accept=".pdf">
+                        <div class="upload-zone-icon">📄</div>
+                        <div class="upload-zone-label">Old Circular</div>
+                        <div class="upload-zone-hint">Previous version (PDF)</div>
+                        <div class="upload-zone-file" id="oldDocFile"></div>
+                    </div>
+
+                    <div class="upload-arrow">→</div>
+
+                    <div class="upload-zone" id="newDocZone" onclick="document.getElementById('newDocInput').click()">
+                        <input type="file" id="newDocInput" accept=".pdf">
+                        <div class="upload-zone-icon">📄</div>
+                        <div class="upload-zone-label">New Circular</div>
+                        <div class="upload-zone-hint">Updated version (PDF)</div>
+                        <div class="upload-zone-file" id="newDocFile"></div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="compareBtn" disabled onclick="app.startComparison()">
+                    ⚡ Analyze Changes
+                </button>
+
+                <div id="uploadStatus" style="color: var(--text-muted); font-size: 0.85rem;"></div>
+            </section>
+
+            <!-- Processing View -->
+            <section id="view-processing" class="processing-view" style="display:none">
+                <div class="processing-card card">
+                    <div class="card-body" style="text-align:center">
+                        <div class="spinner" style="margin: 0 auto 20px"></div>
+                        <h2 style="margin-bottom:8px">Analyzing Regulatory Changes</h2>
+                        <div class="processing-percent" id="progressPercent">0%</div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progressBar" style="width:0%"></div>
+                        </div>
+                        <div class="processing-stage" id="progressStage">Initializing...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard View -->
+            <section id="view-dashboard" style="display:none">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px">
+                    <div>
+                        <h2>Change Analysis Dashboard</h2>
+                        <p style="color:var(--text-muted); font-size:0.85rem" id="dashboardSubtitle"></p>
+                    </div>
+                    <div style="display:flex; gap:8px">
+                        <button class="btn btn-primary btn-sm" id="exportExcelBtn" onclick="app.exportExcel()">📊 Export Excel (.xlsx)</button>
+                        <button class="btn btn-secondary btn-sm" onclick="app.exportJSON()">📥 Export JSON</button>
+                        <button class="btn btn-ghost btn-sm" onclick="app.showView('explorer')">View All Changes →</button>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="dashboard-grid" id="statsGrid"></div>
+
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="card chart-container">
+                        <h4 style="margin-bottom:16px; color:var(--text-secondary)">Category Distribution</h4>
+                        <div class="bar-chart" id="categoryChart"></div>
+                    </div>
+                    <div class="card chart-container">
+                        <h4 style="margin-bottom:16px; color:var(--text-secondary)">Impact Heatmap</h4>
+                        <div id="heatmapContainer"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Change Explorer View -->
+            <section id="view-explorer" style="display:none">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px">
+                    <h2>Change Explorer</h2>
+                    <button class="btn btn-ghost btn-sm" onclick="app.showView('dashboard')">← Dashboard</button>
+                </div>
+
+                <div class="explorer-controls">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search changes... (e.g. 'reporting deadline', 'threshold')" oninput="app.filterChanges()">
+                    <select class="filter-select" id="filterCategory" onchange="app.filterChanges()">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select class="filter-select" id="filterImpact" onchange="app.filterChanges()">
+                        <option value="">All Impacts</option>
+                        <option value="CRITICAL">Critical</option>
+                        <option value="HIGH">High</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="LOW">Low</option>
+                        <option value="INFORMATIONAL">Informational</option>
+                    </select>
+                    <select class="filter-select" id="filterType" onchange="app.filterChanges()">
+                        <option value="">All Types</option>
+                        <option value="ADDED">Added</option>
+                        <option value="REMOVED">Removed</option>
+                        <option value="MODIFIED">Modified</option>
+                        <option value="RELOCATED">Relocated</option>
+                        <option value="REWORDED">Reworded</option>
+                    </select>
+                    <select class="filter-select" id="filterSubstantive" onchange="app.filterChanges()">
+                        <option value="">All</option>
+                        <option value="true">Substantive Only</option>
+                        <option value="false">Editorial Only</option>
+                    </select>
+                </div>
+
+                <div class="change-list" id="changeList"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Change Detail Modal -->
+    <div class="modal-overlay" id="changeModal" style="display:none" onclick="if(event.target===this)app.closeModal()">
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <script src="/frontend/app.js"></script>
+</body>
+</html>
